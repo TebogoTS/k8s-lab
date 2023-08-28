@@ -31,7 +31,7 @@ jobs:
         done
 
         echo "Commit message doesn't contain any skip keywords."
-        echo ""::set-output name=skip_job::false"
+        echo "::set-output name=skip_job::false"
 
     - name: Run Job
       if: steps.check-message.outputs.skip_job != 'true'
