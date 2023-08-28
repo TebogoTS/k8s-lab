@@ -8,7 +8,31 @@ on:
     - 'README.md'
 
 jobs:
+
   test:
     runs-on: ubuntu-latest
+
     steps:
-    - run: echo "Hello world 2"
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check commit message
+      id: check-message
+      run: |
+        keywords=("skip-ci" "no-build" "skip-job")
+        commit_message=$(git log -1 --pretty=%B)
+
+        for keyword in "${keywords[@]}"; do
+          if [[ "$commit_message" == *"$keyword"* ]]; then
+            echo "Commit message contains '$keyword'. Skipping job..."
+            echo "::set-output name=skip_job::true"
+            exit 0
+          fi
+        done
+
+        echo "Commit message doesn't contain any skip keywords."
+        echo ""::set-output name=skip_job::false"
+
+    - name: Run Job
+      if: steps.check-message.outputs.skip_job != 'true'
+      run: echo "The job is to echo a message on the screen....deployed successfully."
